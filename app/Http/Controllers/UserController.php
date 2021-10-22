@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendWhatsappMessage;
+use App\Models\Payers;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -20,6 +22,49 @@ class UserController extends Controller
             ]);
         }
     }
+
+    public function update_presencepay(Request $req){
+        $req->validate([
+            'id'=>'required',
+            'presence'=>'required'
+        ]);
+        Payers::where('id',$req->id)->update([
+            'odeme_durumu'=>$req->presence,
+            'updated_at'=>Carbon::now('GMT+3'),
+            'odeme_yil'=>Carbon::now('GMT+3')->year,
+            'odeme_ay'=>Carbon::now('GMT+3')->month,
+            'odeme_gun'=>Carbon::now('GMT+3')->day,
+        ]);
+    }
+
+    public function create_pay(Request $req){
+        $req->validate(
+            [
+                'name'=>'required',
+                'phone'=>'required|min:10|max:10',
+                'total'=>'required',
+                'category'=>'required',
+
+            ]
+        );
+
+        Payers::insert([
+            'ad'=>$req->name,
+            'kategori'=>$req->category,
+            'borc_miktari'=>$req->total,
+            'telefon_no'=>$req->phone,
+            'description'=>$req->description
+        ]);
+
+    }
+
+
+
+
+
+
+
+
     private static function callAPI($token, $method, $url, $data){
         $curl = curl_init();
 

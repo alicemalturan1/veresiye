@@ -24,5 +24,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('/book', function () {
         return view("book");
     });
+    Route::post('/create_payer',[\App\Http\Controllers\UserController::class,'create_pay']);
+    Route::post('/update_presence_pay',[\App\Http\Controllers\UserController::class,'update_presencepay']);
     Route::post('/bilgilendir',[\App\Http\Controllers\UserController::class,'bilgilendir']);
 });

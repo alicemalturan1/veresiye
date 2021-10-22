@@ -4,14 +4,24 @@
         $(this).parent().addClass("border-primary");
 
 });
-
+$(".select_item-btn").click(function(){
+   $(".task-box[data-id="+$(this).data("id")+"]").toggleClass("border border-danger");
+});
 $(".panel_loginform").submit(function(e){
     e.preventDefault();
     axios.post('/login',$(this).serialize()).then( (v)=>{
         $(".panel_loginform .alert-danger").remove();
         $(".panel_loginform .alert-success").removeClass('d-none');
-        setTimeout(()=>window.location.reload(),2500);
+        setTimeout(()=>window.location.replace('/book'),1500);
     }).catch(()=>{$(".panel_loginform .alert-danger").removeClass('d-none');});
 });
-
+$(".add_payersform").submit(function(e){
+    e.preventDefault();
+    axios.post('/create_payer',$(this).serialize()).then(()=>{
+        window.location.reload();
+    }).catch(function(){
+        $(".add_payersform").children().eq(0).append("<div class='row'><div class='col-lg-12 '><div class='alert alert-danger'>Bir hata oluştu, lütfen eksik veri göndermeyin.</div></div></div>");
+        setTimeout(function(){$(".add_payersform").children().eq(0).children().eq( $(".add_payersform").children().eq(0).children().length-1).remove();},1200);
+    });
+});
 });

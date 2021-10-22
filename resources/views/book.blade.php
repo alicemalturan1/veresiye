@@ -4,7 +4,7 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Destek Biletleri | Panel</title>
+    <title>Veresiye Defteri</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- App favicon -->
@@ -30,6 +30,50 @@
 
 <div class="container-fluid">
     <!-- Begin page -->
+    <div class="modal fade" id="new_pay_modal" tabindex="-1" role="dialog"
+         aria-labelledby="composemodalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="composemodalTitle"> Borç Ekle </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <form class="add_payersform">
+                    <div class="modal-body">
+
+                        <div>
+
+
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="name" placeholder="Borçlu Kişi">
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="phone" placeholder="Telefon Numarası (5.....)" maxlength="10">
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="total" data-toggle="touchspin" placeholder="Borç Miktarı">
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="category"  placeholder="Kategori" value="Sipariş">
+                            </div>
+
+                            <div class="mb-3">
+                                <textarea name="description" class="form-control" rows="10" placeholder="Açıklama (Opsiyonel)"></textarea>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="submit" class="btn btn-primary">Oluştur <i
+                                class="fab fa-telegram-plane ms-1"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div id="layout-wrapper">
 
     @include('section.top_menu')
@@ -42,14 +86,14 @@
 
             <div class="page-content">
 
-                @include('section.page_header',['title'=>'Destek Biletleri'])
+                @include('section.page_header',['title'=>'Veresiye Defteri'])
 
 
                 <div class="row  ">
 
                     <div class="row pt-5 pt-lg-1 justify-content-end">
                             <div class="col-xl-2 col-lg-3">
-                                <button class="w-100 btn btn-dark waves-effect waves-light ">
+                                <button class="w-100 btn btn-dark waves-effect waves-light " data-bs-target="#new_pay_modal" data-bs-toggle="modal">
                                     <i class="fas fa-plus font-size-16 align-middle me-1"></i>
                                     Yeni borç
                                 </button>
@@ -90,11 +134,14 @@
                                                         <i class="mdi mdi-dots-vertical m-0 text-muted h5"></i>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-end">
-                                                        <button class="dropdown-item show_ticket_modalbtn" data-id="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#show_ticket_modal" href="#">Görüntüle</button>
-                                                        <button class="dropdown-item reply_supportticket_btn" data-id="{{$item->id}}" disabled >Yanıtla</button>
+                                                        <button class="dropdown-item " data-id="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#show_ticket_modal" href="#">Detay</button>
+                                                        <button class="dropdown-item select_item-btn" data-id="{{$item->id}}" >Seç</button>
                                                     </div>
                                                 </div>
+                                                <div class="p-1 ">
 
+                                                    <span class="badge font-size-13 rounded-pill bg-soft-primary text-primary"> <i class="fas fa-chevron-right font-size-12 "></i> {{$item->kategori}}</span>
+                                                </div>
                                                 <div class="pt-2">
 
                                                     <div class="team float-start">
@@ -178,8 +225,8 @@
                                                         <i class="mdi mdi-dots-vertical m-0 text-muted h5"></i>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-end">
-                                                        <button class="dropdown-item show_ticket_modalbtn" data-id="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#show_ticket_modal" href="#">Görüntüle</button>
-                                                        <button class="dropdown-item reply_supportticket_btn" data-id="{{$item->id}}" disabled >Yanıtla</button>
+                                                        <button class="dropdown-item " data-id="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#show_ticket_modal" href="#">Detay</button>
+                                                        <button class="dropdown-item " data-id="{{$item->id}}"  >Seç</button>
                                                     </div>
                                                 </div>
 
@@ -283,24 +330,13 @@
 <script src="/admin-assets/assets/js/app.js"></script>
 
 <script>
-    var drake = dragula([document.getElementById("new"),document.getElementById("in_progress"),document.getElementById("locked")],{
-        moves:function(el, target, source, sibling){
-            var current_id =$(el).parent().attr("id"),new_id=$(target).attr("id");
-            if( !(current_id =="locked" )){
-                return true;
-            }
-        }
-    });
+    var drake = dragula([document.getElementById("new"),document.getElementById("in_progress"),document.getElementById("locked")]);
     drake.on('drop',function(el, target, source, sibling){
-        var progress_list = {"new":0,'locked':2,'in_progress':1};
+        var progress_list = {"new":0,'locked':1};
         var dropped =progress_list[$(target).attr("id")];
         var id = $(el).data('id');
-        if ($(target).attr("id") == "locked"){
-            $(".reply_supportticket_btn[data-id="+id+"]").attr("disabled",true);
-        }else{
-            $(".reply_supportticket_btn[data-id="+id+"]").attr("disabled",false);
-        }
-        axios.post('/admin/support_ticket/update_presence',{"id":id,'presence':dropped});
+
+        axios.post('/update_presence_pay',{"id":id,'presence':dropped});
     });
 </script>
 <script>
