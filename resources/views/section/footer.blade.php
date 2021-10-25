@@ -1,6 +1,7 @@
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/admin-assets/assets/js/axios.min.js"></script>
 
+<script src="/admin-assets/assets/js/sweetalert2.js"></script>
 <footer class="footer">
     <div class="container-fluid">
         <div class="row">

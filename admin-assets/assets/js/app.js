@@ -7,21 +7,101 @@
 $(".select_item-btn").click(function(){
    $(".task-box[data-id="+$(this).data("id")+"]").toggleClass("border border-danger");
 });
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+
+$(".detail_pay-btn").click(function(){
+    axios.post('/getPayModalContent',{"id":$(this).data("id")}).then(function(v){
+        $(".detail_pay_modal-body").html(v.data);
+    });
+});
+$(".whatsapp_apiconfig").submit(function(e){
+        e.preventDefault();
+        axios.post('/update_wpapiconfig',$(this).serialize()).then(()=>{
+            Toast.fire({
+                icon:"success",
+                title:"Başarıyla kaydedildi"
+            });
+        }).catch(function(){
+            Toast.fire({
+                icon:"error",
+                title:"Bir hata oluştu!"
+            });
+        });
+    });
+var skip_log = 10;
+$(".more_log-btn").click(function(){
+    axios.post('/more_log',{"skip":skip_log}).then(function(v){
+        if (v.data.length){
+            $.each(v.data,function(key,val){
+                var ico = '<div class="activity-icon avatar-xs" title="'+val.title+'"> <span class="avatar-title bg-soft-'+val.color+' text-'+val.color+' rounded-circle"> <i class="'+val.icon+'"></i> </span> </div>';
+                var text = '<div class="d-flex align-items-start"> <div class="me-3"> <h5 class="font-size-14"> '+val.created_at +' <i class="mdi mdi-arrow-right text-primary align-middle ms-2"></i> </h5> </div> <div class="flex-1"> <div> '+val.text+' </div> </div> </div>';
+                $(".activity_log_list-stat").append('<li class="activity-list">'+ico+text+'</li>');
+                skip_log+=10;
+            });
+        } if (!v.data.length || v.data.length<10){
+            $(".more_log-btn").attr("disabled",true);
+            $(".more_log-btn").text("Sonuna ulaştınız");
+        }
+    });
+});
 $(".panel_loginform").submit(function(e){
     e.preventDefault();
     axios.post('/login',$(this).serialize()).then( (v)=>{
         $(".panel_loginform .alert-danger").remove();
         $(".panel_loginform .alert-success").removeClass('d-none');
-        setTimeout(()=>window.location.replace('/book'),1500);
+        setTimeout(()=>window.location.href= '/book',1500);
     }).catch(()=>{$(".panel_loginform .alert-danger").removeClass('d-none');});
 });
 $(".add_payersform").submit(function(e){
     e.preventDefault();
+    $(".add_payersform button[type=submit]").attr("disabled",true);
     axios.post('/create_payer',$(this).serialize()).then(()=>{
         window.location.reload();
     }).catch(function(){
+        $(".add_payersform button[type=submit]").attr("disabled",false);
         $(".add_payersform").children().eq(0).append("<div class='row'><div class='col-lg-12 '><div class='alert alert-danger'>Bir hata oluştu, lütfen eksik veri göndermeyin.</div></div></div>");
         setTimeout(function(){$(".add_payersform").children().eq(0).children().eq( $(".add_payersform").children().eq(0).children().length-1).remove();},1200);
     });
 });
+$(".add_sale_form").submit(function(e){
+    e.preventDefault();
+    var form = this;
+    $(".add_sale_form button[type=submit]").attr("disabled",true);
+    axios.post('/create_sale',$(this).serialize()).then(()=>{
+        window.location.reload();
+    }).catch(()=>{
+        $(".add_sale_form button[type=submit]").attr("disabled",false);
+        $(form).children().eq(0).append("<div class='row'><div class='col-lg-12'><div class='alert  alert-danger'>Bir hata oluştu, lütfen eksik veri göndermeyin</div></div></div>");
+        setTimeout(()=>{$(form).children().eq(0).children().eq($(form).children().eq(0).children().length-1).remove();},1800);
+    });
+
+
+});
+$(".edit_salemodalbtn").click(function(){
+
+        $(".edit_modalform-block").html('<div class="row p-5 align-items-center"><div class="col-lg-12 text-center"><div class="spinner-border text-success m-1" role="status"> <span class="sr-only">Loading...</span> </div></div></div>');
+        axios.post('/getEditSaleModalContent',{"id":$(this).data("id")}).then((v)=>{
+            $(".edit_modalform-block").html(v.data);
+        });
+    });
+$(document).on("submit",".edit_sale_form",function(e) {
+        e.preventDefault();
+        var form = this;
+        $(".edit_sale_form button[type=submit]").attr("disabled",true);
+        axios.post('/update_sale',$(this).serialize()).then(()=>{window.location.reload()}).catch(()=>{
+            $(".edit_sale_form button[type=submit]").attr("disabled",false);
+            $(form).children().eq(0).append("<div class='row'><div class='col-lg-12'><div class='alert  alert-danger'>Bir hata oluştu, lütfen eksik veri göndermeyin</div></div></div>");
+            setTimeout(()=>{$(form).children().eq(0).children().eq($(form).children().eq(0).children().length-1).remove();},1800);
+        });
+    });
 });

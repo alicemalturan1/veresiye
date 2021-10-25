@@ -27,7 +27,7 @@
             <ul class="metismenu list-unstyled" id="side-menu">
 
                 <li>
-                    <a href="javascript: void(0);" class="waves-effect">
+                    <a href="/" class="waves-effect">
                         <i class="mdi mdi-airplay"></i><span class="badge rounded-pill bg-info float-end">2</span>
                         <span>Durum</span>
                     </a>
@@ -35,7 +35,7 @@
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);" class="waves-effect">
+                    <a href="/book" class="waves-effect">
 
                         <i class="mdi mdi-creation"></i><span class="badge rounded-pill bg-info float-end">1</span>
                         <span>Veresiye Defteri</span>
@@ -44,10 +44,10 @@
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);" class="waves-effect">
+                    <a href="/sales" class="waves-effect">
 
-                        <i class="fas fa-tools"></i><span class="badge rounded-pill bg-info float-end">1</span>
-                        <span>Ayarlar</span>
+                        <i class="fas fa-clipboard-list"></i><span class="badge rounded-pill bg-info float-end">1</span>
+                        <span>Satışlar</span>
                     </a>
 
                 </li>

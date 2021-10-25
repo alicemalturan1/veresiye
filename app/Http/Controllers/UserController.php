@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendWhatsappMessage;
+use App\Models\Logs;
 use App\Models\Payers;
+use App\Models\Sales;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +20,14 @@ class UserController extends Controller
             'password'=>'required',
         ]);
         if(Auth::attempt(['username'=>$req->username,'password'=>$req->password],$req->remember_me)){
+            Logs::insert([
+                'icon'=>'dripicons-lightbulb',
+                'title'=>"Giriş",
+                'text'=>User::where('username',$req->username)->first()->name." adlı kullanıcı ".Carbon::now()." tarihinde giriş yaptı.",
+                'color'=>'secondary',
+                'user_id'=>Auth::id(),
+                'created_at'=>Carbon::now(),
+            ]);
             return response()->json([
                 'access'=>true,
             ]);
@@ -35,8 +46,45 @@ class UserController extends Controller
             'odeme_ay'=>Carbon::now('GMT+3')->month,
             'odeme_gun'=>Carbon::now('GMT+3')->day,
         ]);
+        Logs::insert([
+            'icon'=>'bx bx-git-compare',
+            'title'=>"Güncelleme",
+            'text'=>Auth::user()->name." adlı kullanıcı ".$req->id." id numaralı borcu düzenledi.",
+            'color'=>'success',
+            'user_id'=>Auth::id(),
+            'created_at'=>Carbon::now(),
+        ]);
     }
+    public function get_edit_sale_form(Request $req){
+        $req->validate(['id'=>'required']);
+        return view('section.editsale_modal_content',['sale'=>Sales::where('id',$req->id)->first()]);
+    }
+    public function update_sale(Request $req){
+        $req->validate(
+            [
+                'payment_method'=>'required',
+                'payment_status'=>'required',
+                'total'=>'required',
+                'id'=>'required'
+            ]
+        );
 
+        Sales::where('id',$req->id)->update([
+            'price'=>$req->total,
+            'payment_status'=>explode('-',$req->payment_status)[1],
+            'payment_status_color'=>explode('-',$req->payment_status)[0],
+            'payment_method'=>$req->payment_method,
+            'description'=>$req->description
+        ]);
+        Logs::insert([
+            'icon'=>'bx bx-git-compare',
+            'title'=>"Güncelleme",
+            'text'=>Auth::user()->name." adlı kullanıcı ".$req->id." id numaralı satışı düzenledi.",
+            'color'=>'success',
+            'user_id'=>Auth::id(),
+            'created_at'=>Carbon::now(),
+        ]);
+    }
     public function create_pay(Request $req){
         $req->validate(
             [
@@ -53,119 +101,66 @@ class UserController extends Controller
             'kategori'=>$req->category,
             'borc_miktari'=>$req->total,
             'telefon_no'=>$req->phone,
-            'description'=>$req->description
+            'description'=>$req->description,
+            'created_at'=>Carbon::now(),
         ]);
-
+        Logs::insert([
+            'icon'=>'dripicons-information',
+            'title'=>"Ekleme",
+            'text'=>Auth::user()->name." adlı kullanıcı borç oluşturdu.",
+            'color'=>'success',
+            'user_id'=>Auth::id(),
+            'created_at'=>Carbon::now(),
+        ]);
     }
-
-
-
-
-
-
-
-
-    private static function callAPI($token, $method, $url, $data){
-        $curl = curl_init();
-
-        switch ($method){
-            case "POST":
-                curl_setopt($curl, CURLOPT_POST, 1);
-                if ($data)
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-                break;
-            case "PUT":
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-                if ($data)
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-                break;
-            default:
-                if ($data)
-                    $url = sprintf("%s?%s", $url, http_build_query($data));
-        }
-
-        // OPTIONS:
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'Authorization: Basic ' . $token,
-            'Content-Type: application/json',
-        ));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-
-        $result = curl_exec($curl);
-
-
-
-        curl_close($curl);
-
-        return $result;
+    public function get_paydetail(Request $req){
+        $req->validate([
+            'id'=>'required'
+        ]);
+        return view("section.detailpay_modal_content",['payer'=>Payers::where('id',$req->id)->first()]);
     }
-    public static function start_agent($token,$url){
-        $curl = curl_init();
+    public function create_sale(Request $req){
+        $req->validate(
+            [
+                'payment_method'=>'required',
+                'payment_status'=>'required',
+                'total'=>'required',
 
-
-                curl_setopt($curl, CURLOPT_POST, 1);
-
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(['identity'=>"905431222325@s.whatsapp.net"]));
-
-
-        // OPTIONS:
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'Authorization:Basic '.$token,
-            'Content-Type: application/json',
-        ));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-
-        $result = curl_exec($curl);
-
-
-
-        curl_close($curl);
-
-        return $result;
-
-    }
-    public static function mesaj_gonder(){
-        // Replace with Your API Client Key
-        $clientKey = ')xYcW@R75Jg0';
-        // Replace with Your API Client Secret
-        $clientSecret = 'vg)sGbjaPX9sGM0O@NvaskkhdVE)HN27';
-        // compiled client with base64
-        $clientToken = base64_encode($clientKey.':'.$clientSecret);
-
-
-
-        $url = 'https://api.profilora.com/whatsapp/send-message';
-
-        // this must be matched with the number on the registered agent
-        $senderNo = '905431222325@s.whatsapp.net';
-        $data_array = array(
-            'sender' => '905431222325@s.whatsapp.net',
-            'to' => '905388813080@s.whatsapp.net',
-            'message' => 'php ile deneme'
+            ]
         );
 
-        $make_call = self::callAPI($clientToken, 'POST',  $url, json_encode($data_array));
-        $response = json_decode($make_call, true);
-        return $response;
+        Sales::insert([
+            'price'=>$req->total,
+            'payment_status'=>explode('-',$req->payment_status)[1],
+            'payment_status_color'=>explode('-',$req->payment_status)[0],
+            'payment_method'=>$req->payment_method,
+            'description'=>$req->description,
+            'created_at'=>Carbon::now(),
+        ]);
+
+        Logs::insert([
+            'icon'=>'dripicons-anchor',
+            'title'=>"Ekleme",
+            'text'=>Auth::user()->name." adlı kullanıcı satış oluşturdu.",
+            'color'=>'success',
+            'user_id'=>Auth::id(),
+            'created_at'=>Carbon::now(),
+        ]);
     }
-    public function bilgilendir(Request $req){
+    public function setPanelColor(Request $req){
+        $req->validate([
+            'color'=>'required'
+        ]);
 
-        $clientKey = ')xYcW@R75Jg0';
-        // Replace with Your API Client Secret
-        $clientSecret = 'vg)sGbjaPX9sGM0O@NvaskkhdVE)HN27';
-        // compiled client with base64
-        $clientToken = base64_encode($clientKey.':'.$clientSecret);
-
-        $resp= UserController::mesaj_gonder();
-        if(!array_key_exists('eventId',$resp)){
-            self::start_agent($clientToken,'https://profilora.com/api/wa/start-agent');
-            dd(self::start_agent($clientToken,'https://profilora.com/api/wa/agent-fetch'));
-
-        }
-        return $resp;
+        return response()->json([
+            'color'=>$req->color,
+            'status'=>'success'
+        ])->withCookie(cookie('panel_color',$req->color,315456,'/'));
     }
+
+
+
+
+
+
 }

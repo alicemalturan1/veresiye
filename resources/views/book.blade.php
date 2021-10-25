@@ -30,6 +30,30 @@
 
 <div class="container-fluid">
     <!-- Begin page -->
+    <div class="modal fade" id="detail_pay_modal" tabindex="-1" role="dialog"
+         aria-labelledby="composemodalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+
+                    <div class="modal-body detail_pay_modal-body">
+
+
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Kapat</button>
+
+                    </div>
+
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="new_pay_modal" tabindex="-1" role="dialog"
          aria-labelledby="composemodalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -98,6 +122,7 @@
                                     Yeni borç
                                 </button>
                             </div>
+
                     </div>
                 <div class="row pt-3">
 
@@ -120,11 +145,19 @@
                                             Seçilenleri Bilgilendir
                                         </button>
                                     </div>
+
                                 </div>
-                                <div id="new" class="p-1 pb-3 pt-2 task-list">
-                                    <div class="col-lg-12 not_found-text text-center font-size-12 @if(count(\App\Models\Payers::where('odeme_durumu',0)->get())>0) d-none @endif text-muted">
+                                <div class="row pt-3 not_found_text @if(count(\App\Models\Payers::where('odeme_durumu',0)->get())>0) d-none @endif ">
+                                    <div class="col-lg-12  text-center font-size-12 text-muted">
                                         Şu anda ödenmemiş borç bulunmuyor.
                                     </div>
+                                    <div class="col-lg-12 text-center pt-1 pb-1 text-center">
+                                        <i class="fas fa-check-circle text-success  align-middle" style="font-size: 5rem;"></i>
+                                    </div>
+                                </div>
+                                <div id="new" class="p-1 pb-3 pt-2 task-list">
+
+
                                     @foreach(\App\Models\Payers::where('odeme_durumu',0)->get() as $item)
                                         <div class="card task-box" data-id="{{$item->id}}">
                                             <div class="card-body">
@@ -134,7 +167,7 @@
                                                         <i class="mdi mdi-dots-vertical m-0 text-muted h5"></i>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-end">
-                                                        <button class="dropdown-item " data-id="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#show_ticket_modal" href="#">Detay</button>
+                                                        <button class="dropdown-item detail_pay-btn" data-id="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#detail_pay_modal" href="#">Detay</button>
                                                         <button class="dropdown-item select_item-btn" data-id="{{$item->id}}" >Seç</button>
                                                     </div>
                                                 </div>
@@ -212,10 +245,17 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div id="locked" class="p-1 pb-3 pt-2 task-list">
-                                    <div class="col-lg-12 not_found-text text-center font-size-13 @if(count(\App\Models\Payers::where('odeme_durumu',1)->get())>0) d-none @endif text-muted">
+                                <div class="row not_found_text pt-3 @if(count(\App\Models\Payers::where('odeme_durumu',1)->get())>0) d-none @endif ">
+                                    <div class="col-lg-12  text-center font-size-12 text-muted">
                                         Şu anda ödenmiş borç bulunmuyor.
                                     </div>
+                                    <div class="col-lg-12 text-center pt-1 pb-1 text-center">
+                                        <i class="fas fa-angry text-danger  align-middle" style="font-size: 5rem;"></i>
+                                    </div>
+                                </div>
+                                <div id="locked" class="p-1 pb-3 pt-2 task-list">
+
+
                                     @foreach(\App\Models\Payers::where('odeme_durumu',1)->get() as $item)
                                         <div class="card task-box" data-id="{{$item->id}}">
                                             <div class="card-body">
@@ -225,11 +265,14 @@
                                                         <i class="mdi mdi-dots-vertical m-0 text-muted h5"></i>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-end">
-                                                        <button class="dropdown-item " data-id="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#show_ticket_modal" href="#">Detay</button>
-                                                        <button class="dropdown-item " data-id="{{$item->id}}"  >Seç</button>
+                                                        <button class="dropdown-item detail_pay-btn" data-id="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#detail_pay_modal" href="#">Detay</button>
+                                                        <button class="dropdown-item select_item-btn" data-id="{{$item->id}}"  >Seç</button>
                                                     </div>
                                                 </div>
+                                                <div class="p-1 ">
 
+                                                    <span class="badge font-size-13 rounded-pill bg-soft-primary text-primary"> <i class="fas fa-chevron-right font-size-12 "></i> {{$item->kategori}}</span>
+                                                </div>
                                                 <div class="pt-2">
 
                                                     <div class="team float-start">
@@ -335,7 +378,26 @@
         var progress_list = {"new":0,'locked':1};
         var dropped =progress_list[$(target).attr("id")];
         var id = $(el).data('id');
+        if($(source).children().length<1){
+            $.each($(source).parent().children(),function(key,val){
 
+                if($(val).hasClass('not_found_text')){
+                    $(val).removeClass('d-none');
+                }
+            });
+
+        }
+        if($(target).children().length>0){
+
+            $.each($(target).parent().children(),function(key,val){
+
+                if($(val).hasClass('not_found_text')){
+                    $(val).addClass('d-none');
+                }
+            });
+        }
+
+        console.log();
         axios.post('/update_presence_pay',{"id":id,'presence':dropped});
     });
 </script>
