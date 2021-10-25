@@ -33,7 +33,7 @@
                             <h5 class="text-white font-size-20">Hoşgeldin !</h5>
                             <p class="text-white-50 mb-0">Oturum aç ve  keyfini sür!</p>
                             <a href="/" class="logo logo-admin mt-4">
-                                <img src="/admin-assets/assets/images/logo-sm-dark.png" alt="" height="30">
+                                <img src="/admin-assets/assets/images/logo-dark.svg" >
                             </a>
                         </div>
                     </div>
@@ -79,7 +79,8 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/admin-assets/assets/js/sweetalert2.js"></script>
+<script src="/admin-assets/assets/js/axios.min.js"></script>
 
 <!-- JAVASCRIPT -->
 <!-- JAVASCRIPT -->
