@@ -1,4 +1,4 @@
-
+@if(\Illuminate\Support\Facades\Auth::check()) <script>window.location.href='/';</script> @endif
 <!doctype html>
 <html lang="tr">
 

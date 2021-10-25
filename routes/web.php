@@ -36,6 +36,10 @@ Route::group(['middleware'=>'auth'],function(){
     Route::post('/more_log',[\App\Http\Controllers\Controller::class,'more_log']);
     Route::post('/update_wpapiconfig',[\App\Http\Controllers\Controller::class,'update_wpapiconfig']);
     Route::post('/getPayModalContent',[\App\Http\Controllers\UserController::class,'get_paydetail']);
+    Route::get('/logout',function(){
+        \Illuminate\Support\Facades\Auth::logout();
+        return response()->redirectTo('/login');
+    });
 });
 
 Route::get('/feed_database',function(){

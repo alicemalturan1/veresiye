@@ -30,10 +30,7 @@
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
 
-                        <a class="dropdown-item d-block" href=""><span class="badge bg-success float-end">11</span><i
-                                class="bx bx-wrench font-size-16 align-middle me-1"></i> Ayarlar</a>
-                        <a class="dropdown-item" href="#"><i class="bx bx-lock-open font-size-16 align-middle me-1"></i>
-                            Kilitle</a>
+
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="/logout"><i
                                 class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> Güvenli Çıkış</a>
